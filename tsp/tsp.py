@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
 
-from typing import TypeAlias
+import sys
 from dataclasses import dataclass
 from functools import partial
 from numbers import Real
+from typing import TypeAlias
+
+import tsp_utils as tspu
+
 
 Distances: TypeAlias = dict[tuple[int, int], Real]
 Tour: TypeAlias = list[int]
 
 
-def generate_greedy(dist: Distances) -> Tour:
-    raise NotImplementedError
+def generate_greedy(n: int, dist: Distances) -> Tour:
+    return list(range(n))  # FIXME
 
 
 def assert_is_valid_tour(tour: Tour) -> Tour:
-    print("checking tour", tour)
     assert sorted(tour) == list(range(len(tour)))
     return tour
 
@@ -58,3 +61,17 @@ def improve_locally(dist: Distances, tour: Tour) -> Tour:
         if move.cost_difference(dist) >= 0:
             return tour
         tour = move.resulting_tour()
+
+
+def main():
+    n, points, dist, opt_tour, opt_cost = tspu.readTSPLIB(sys.argv[1])
+
+    start = generate_greedy(n, dist)
+    local_optimum = improve_locally(dist, start)
+    print(
+        f"Improved random tour from {tspu.computeCost(start, dist)} to {tspu.computeCost(local_optimum, dist)} (global optimum is {opt_cost})"
+    )
+
+
+if __name__ == "__main__":
+    main()
