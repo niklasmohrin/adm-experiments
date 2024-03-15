@@ -24,9 +24,16 @@
                   gnumake
                   bear
 
-                  python310
-                  mypy
-                  black
+                  (python311.withPackages (ps: with ps; [
+                    pip
+                    python-lsp-server
+                    python-lsp-black
+                    pylsp-mypy
+                    pylsp-rope
+                    python-lsp-ruff
+                    ujson
+                    isort
+                  ]))
 
                   hexyl
                 ];
