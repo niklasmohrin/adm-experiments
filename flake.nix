@@ -4,27 +4,29 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
     flake-utils.url = "github:numtide/flake-utils";
+
+    tsplib95.url = "github:rhgrant10/tsplib95";
   };
 
-  outputs = { nixpkgs, flake-utils, ... }:
+  outputs = inputs@{ nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem
       (system:
         let
           pkgs = import nixpkgs { inherit system; };
+          python = pkgs.python311;
+          tsplib95 = python.pkgs.buildPythonPackage {
+            name = "tsplib95";
+            src = inputs.tsplib95;
+            pyproject = true;
+            propagatedBuildInputs = with python.pkgs; [ setuptools pytest-runner tabulate deprecated networkx ];
+          };
         in
         {
           devShells =
             {
               default = pkgs.mkShell {
-                packages = with pkgs; [
-                  clang-tools_16
-                  clang_16
-                  fmt
-                  gdb
-                  gnumake
-                  bear
-
-                  (python311.withPackages (ps: with ps; [
+                packages = [
+                  (python.withPackages (ps: with ps; [
                     pip
                     python-lsp-server
                     python-lsp-black
@@ -33,9 +35,11 @@
                     python-lsp-ruff
                     ujson
                     isort
-                  ]))
 
-                  hexyl
+                    numpy
+                    matplotlib
+                    tsplib95
+                  ]))
                 ];
               };
             };
