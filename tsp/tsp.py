@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
+import random
 import sys
 from dataclasses import dataclass
 from functools import partial
 from numbers import Real
 from typing import TypeAlias
+
+import matplotlib.pyplot as plt
 
 import tsp_utils as tspu
 
@@ -13,8 +16,27 @@ Distances: TypeAlias = dict[tuple[int, int], Real]
 Tour: TypeAlias = list[int]
 
 
+def plot(points, path):
+    x = [points[i][0] for i in path]
+    y = [points[i][1] for i in path]
+    plt.plot(x, y)
+    plt.title("path")
+    plt.show()
+
+
+MAX_CANDIDATES = 5
+
+
 def generate_greedy(n: int, dist: Distances) -> Tour:
-    return list(range(n))  # FIXME
+    tour = [random.randrange(n)]
+    remaining = set(range(n)) - {tour[-1]}
+
+    for _ in range(n - 1):
+        candidates = sorted(remaining, key=lambda v: dist[tour[-1], v])[:MAX_CANDIDATES]
+        tour.append(random.choice(candidates))
+        remaining.remove(tour[-1])
+
+    return tour
 
 
 def assert_is_valid_tour(tour: Tour) -> Tour:
@@ -67,10 +89,12 @@ def main():
     n, points, dist, opt_tour, opt_cost = tspu.readTSPLIB(sys.argv[1])
 
     start = generate_greedy(n, dist)
+    plot(points, start)
     local_optimum = improve_locally(dist, start)
     print(
         f"Improved random tour from {tspu.computeCost(start, dist)} to {tspu.computeCost(local_optimum, dist)} (global optimum is {opt_cost})"
     )
+    plot(points, local_optimum)
 
 
 if __name__ == "__main__":
