@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
 
+"""
+Run using
+
+     docker network create gurobi-network
+     docker run --name=gurobi-compute-container --net=gurobi-network --volume=$PWD/gurobi.lic:/opt/gurobi/gurobi.lic:ro --rm -it gurobi/compute
+     docker build -t gurobi-python .
+     docker run --net=gurobi-network --volume=$PWD/arb:/models -it gurobi-python /models/arb.py /models/in1 /models/out1
+"""
+
 
 import sys
 
